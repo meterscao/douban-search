@@ -20,10 +20,10 @@ export async function GET(request: Request) {
 
         // 返回结果
         return NextResponse.json(results);
-    } catch (error: any) {
+    } catch (error: unknown) {
         // 错误处理
         return NextResponse.json(
-            { error: error.message },
+            { error: error instanceof Error ? error.message : '未知错误' },
             { status: 500 }
         );
     }

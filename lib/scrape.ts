@@ -36,7 +36,7 @@ export async function scrapeDouban(searchQuery: string): Promise<DoubanSearchRes
             "Upgrade-Insecure-Requests": "1",
         },
         timeout: 5000, // 设置超时时间
-        validateStatus: (status) => status < 500, // 允许任何小于500的状态码
+        validateStatus: (status: number) => status < 500, // 允许任何小于500的状态码
     };
 
     try {
@@ -95,9 +95,8 @@ export async function scrapeDouban(searchQuery: string): Promise<DoubanSearchRes
         if (results.length === 0) {
             throw new Error('未找到相关结果');
         }
-
         return results;
-    } catch (error: any) {
+    } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
             if (error.code === 'ECONNABORTED') {
                 throw new Error('请求超时，请稍后重试');
@@ -106,6 +105,9 @@ export async function scrapeDouban(searchQuery: string): Promise<DoubanSearchRes
                 throw new Error(`请求失败: ${error.response.status}`);
             }
         }
-        throw new Error(`爬取失败: ${error.message}`);
+        if (error instanceof Error) {
+            throw new Error(`爬取失败: ${error.message}`);
+        }
+        throw new Error('爬取失败: 未知错误');
     }
 }
